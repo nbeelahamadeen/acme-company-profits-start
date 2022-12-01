@@ -6,6 +6,7 @@
     <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
 
     <style>
+
     </style>
   </head>
   <body>
@@ -14,8 +15,61 @@
       //https://www.acme-api.com/api/companies
       //https://www.acme-api.com/api/companies/:id/companyProfits
       const App = () => {
+        const [companies, setCompanies] = React.useState([]);
+        const [profits, setProfits] = React.useState([]);
+
+        const loadCompanies = async()=> {
+          const response = await fetch('https://www.acme-api.com/api/companies');
+          const compInfo = await response.json();
+          console.log(compInfo);
+          setCompanies(compInfo);
+        }
+
+        const loadProfits = async() => {
+          const id = location.hash.slice(1);
+          if(id){
+          const response = await fetch(`https://www.acme-api.com/api/companies/${id}/companyProfits`);
+          const companyEarnings = await response.json();
+          setProfits(companyEarnings);
+        } else{
+            setProfits([]);
+          }
+        }
+      
+
+
+        React.useEffect(() => {
+          loadCompanies();
+          window.addEventListener('hashchange', loadProfits)
+          loadProfits();
+        }, [])
+        
+
+
         return (
-          <h1>Start Building</h1>
+       <div>
+        <h1>Company Details</h1>
+          <ul>
+            {
+              companies.map(company =>{
+                return(
+                <a key={company.id} href={`#${company.id}`}>
+                <li key={ company.id }>{ company.name }</li>
+                </a>
+                )
+              })
+            }
+          </ul>
+          <ul>
+            {
+              profits.map(profit =>{
+                return(
+                <li>{ profit.amount }</li>                
+                )
+              })
+            }
+          </ul>
+        </div>
         );
       }
 
